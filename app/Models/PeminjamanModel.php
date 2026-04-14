@@ -14,7 +14,8 @@ class PeminjamanModel extends Model
         'tanggal_pinjam',
         'tanggal_kembali_rencana',
         'status',
-        'disetujui_oleh'
+        'disetujui_oleh',
+        'status_pengembalian'
     ];
 
     // ambil dengan user

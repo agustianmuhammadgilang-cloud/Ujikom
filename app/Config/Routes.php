@@ -78,5 +78,6 @@ $routes->group('peminjam', function($routes) {
     $routes->post('peminjaman/store', 'Peminjam\Peminjaman::store');
     // pengembalian
     $routes->get('pengembalian', 'Peminjam\Pengembalian::index');
-    
+    // ajukan pengembalian
+    $routes->get('pengembalian/ajukan/(:num)', 'Peminjam\Pengembalian::ajukan/$1');
 });

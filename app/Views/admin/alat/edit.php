@@ -38,7 +38,13 @@
                     <div class="mb-4">
                         <label for="stok" class="form-label small fw-medium">Jumlah Stok</label>
                         <input type="number" name="stok" class="form-control" id="stok" 
-                               value="<?= $alat['stok'] ?>" min="0" required>
+                            value="<?= $alat['stok'] ?>" min="0" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="harga_denda" class="form-label small fw-medium">Harga Denda / Hari</label>
+                        <input type="number" name="harga_denda" class="form-control" id="harga_denda" 
+                            value="<?= $alat['harga_denda'] ?>" min="0" required>
                     </div>
 
                     <hr class="text-muted opacity-25 mb-4">

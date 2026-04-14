@@ -16,11 +16,13 @@ class Pengembalian extends BaseController
         $peminjamanModel = new PeminjamanModel();
 
         $data['peminjaman'] = $peminjamanModel
-        ->select('peminjaman.*, users.nama as nama_peminjam, pengembalian.id_pengembalian, pengembalian.denda, pengembalian.status_denda')
-        ->join('users', 'users.id_user = peminjaman.id_user')
-        ->join('pengembalian', 'pengembalian.id_peminjaman = peminjaman.id_peminjaman', 'left')
-        ->where('peminjaman.status', 'disetujui')
-        ->findAll();
+            ->select('peminjaman.*, users.nama as nama_peminjam, 
+                    pengembalian.id_pengembalian, pengembalian.denda, pengembalian.status_denda,
+                    peminjaman.status_pengembalian')
+            ->join('users', 'users.id_user = peminjaman.id_user')
+            ->join('pengembalian', 'pengembalian.id_peminjaman = peminjaman.id_peminjaman', 'left')
+            ->whereIn('peminjaman.status', ['disetujui', 'dipinjam', 'selesai'])
+            ->findAll();
 
         // LOG
         $logModel = new LogAktivitasModel();
@@ -29,7 +31,6 @@ class Pengembalian extends BaseController
             'aktivitas' => 'Mengakses halaman pengembalian',
             'tanggal' => date('Y-m-d H:i:s')
         ]);
-
 
         return view('petugas/pengembalian/index', $data);
     }
@@ -69,61 +70,85 @@ class Pengembalian extends BaseController
     }
 
     public function simpan($id)
-    {
-        $peminjamanModel = new PeminjamanModel();
-        $pengembalianModel = new PengembalianModel();
-        $detailModel = new DetailPeminjamanModel();
-        $alatModel = new AlatModel();
+{
+    $peminjamanModel = new PeminjamanModel();
+    $pengembalianModel = new PengembalianModel();
+    $detailModel = new DetailPeminjamanModel();
+    $alatModel = new AlatModel();
 
-        $peminjaman = $peminjamanModel->find($id);
+    $peminjaman = $peminjamanModel->find($id);
 
-        $tanggal_kembali = $this->request->getPost('tanggal_kembali');
-        $tanggal_rencana = $peminjaman['tanggal_kembali_rencana'];
+    // VALIDASI SUPER PENTING
+    if ($peminjaman['status_pengembalian'] == 'selesai') {
+        return redirect()->back()->with('error', 'Pengembalian sudah diproses!');
+    }
 
-        // HITUNG SELISIH
-        $selisih = floor(
+    $tanggal_kembali = $this->request->getPost('tanggal_kembali');
+    $tanggal_rencana = $peminjaman['tanggal_kembali_rencana'];
+
+    // HITUNG SELISIH HARI
+    $selisih = floor(
         (strtotime((string)$tanggal_kembali) - strtotime((string)$tanggal_rencana)) 
         / (60 * 60 * 24)
-        );
+    );
 
-        // HITUNG DENDA
-        $denda = 0;
-        if ($selisih > 0) {
-            $denda = $selisih * 1000; // contoh 1000/hari
-        }
+    // HITUNG DENDA
+    $denda = 0;
 
-        // SIMPAN PENGEMBALIAN
-        $pengembalianModel->insert([
-            'id_peminjaman' => $id,
-            'tanggal_kembali' => $tanggal_kembali,
-            'denda' => $denda,
-            'jumlah_bayar' => 0,
-            'status_denda' => 'belum_bayar',
-            'tanggal_bayar' => null,
-            'diterima_oleh' => session()->get('id_user')
-        ]);
+    if ($selisih > 0) {
 
-        // UPDATE STOK
-        $details = $detailModel->where('id_peminjaman', $id)->findAll();
+        $details = $detailModel
+            ->select('detail_peminjaman.*, alat.harga_denda')
+            ->join('alat', 'alat.id_alat = detail_peminjaman.id_alat')
+            ->where('id_peminjaman', $id)
+            ->findAll();
 
         foreach ($details as $d) {
-            $alat = $alatModel->find($d['id_alat']);
+            $jumlah = $d['jumlah'];
+            $harga  = $d['harga_denda'];
 
-            $alatModel->update($d['id_alat'], [
-                'stok' => $alat['stok'] + $d['jumlah']
-            ]);
+            $denda += $jumlah * $selisih * $harga;
         }
-
-        // LOG
-        $log = new LogAktivitasModel();
-        $log->insert([
-            'id_user' => session()->get('id_user'),
-            'aktivitas' => 'Memproses pengembalian ID ' . $id . ' dengan denda ' . $denda,
-            'tanggal' => date('Y-m-d H:i:s')
-        ]);
-
-        return redirect()->to('/petugas/pengembalian');
     }
+
+    // SIMPAN PENGEMBALIAN
+    $pengembalianModel->insert([
+        'id_peminjaman' => $id,
+        'tanggal_kembali' => $tanggal_kembali,
+        'denda' => $denda,
+        'jumlah_bayar' => 0,
+        'status_denda' => 'belum_bayar',
+        'tanggal_bayar' => null,
+        'diterima_oleh' => session()->get('id_user')
+    ]);
+
+    // UPDATE STOK (BALIKIN)
+    $details = $detailModel->where('id_peminjaman', $id)->findAll();
+
+    foreach ($details as $d) {
+        $alat = $alatModel->find($d['id_alat']);
+
+        $alatModel->update($d['id_alat'], [
+            'stok' => $alat['stok'] + $d['jumlah']
+        ]);
+    }
+
+    // 🔥 UPDATE STATUS (INI YANG PENTING)
+    $peminjamanModel->update($id, [
+        'status' => 'selesai',
+        'status_pengembalian' => 'selesai'
+    ]);
+
+    // LOG
+    $log = new LogAktivitasModel();
+    $log->insert([
+        'id_user' => session()->get('id_user'),
+        'aktivitas' => 'Memproses pengembalian ID ' . $id . ' dengan denda ' . $denda,
+        'tanggal' => date('Y-m-d H:i:s')
+    ]);
+
+    return redirect()->to('/petugas/pengembalian');
+}
 
     public function bayar($id)
     {
@@ -144,7 +169,7 @@ class Pengembalian extends BaseController
             ->first();
 
         $detail = $detailModel
-            ->select('detail_peminjaman.*, alat.nama_alat')
+            ->select('detail_peminjaman.*, alat.nama_alat, alat.harga_denda')
             ->join('alat', 'alat.id_alat = detail_peminjaman.id_alat')
             ->where('id_peminjaman', $pengembalian['id_peminjaman'])
             ->findAll();

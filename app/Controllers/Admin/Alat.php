@@ -59,6 +59,7 @@ class Alat extends BaseController
             'nama_alat'   => $this->request->getPost('nama_alat'),
             'id_kategori' => $this->request->getPost('id_kategori'),
             'stok'        => $this->request->getPost('stok'),
+            'harga_denda' => $this->request->getPost('harga_denda')
         ]);
 
         // LOG
@@ -97,6 +98,7 @@ class Alat extends BaseController
             'nama_alat'   => $this->request->getPost('nama_alat'),
             'id_kategori' => $this->request->getPost('id_kategori'),
             'stok'        => $this->request->getPost('stok'),
+            'harga_denda' => $this->request->getPost('harga_denda'),
         ]);
 
         // LOG

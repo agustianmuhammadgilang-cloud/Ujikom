@@ -12,7 +12,8 @@ class AlatModel extends Model
     protected $allowedFields = [
         'nama_alat',
         'id_kategori',
-        'stok'
+        'stok',
+        'harga_denda'
     ];
 
     // join kategori
