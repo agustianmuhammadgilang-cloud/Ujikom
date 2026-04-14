@@ -39,8 +39,12 @@
                         <td class="text-center">
                             <?php if (strtolower($u['role']) == 'admin') : ?>
                                 <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 fw-medium">Admin</span>
+                            <?php elseif (strtolower($u['role']) == 'petugas') : ?>
+                                <span class="badge bg-info-subtle text-info border border-info-subtle px-3 fw-medium">Petugas</span>
+                            <?php elseif (strtolower($u['role']) == 'peminjam') : ?>
+                                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 fw-medium">Peminjam</span>
                             <?php else : ?>
-                                <span class="badge bg-light text-secondary border px-3 fw-medium">User</span>
+                                <span class="badge bg-light text-secondary border px-3 fw-medium"><?= ucfirst($u['role']) ?></span>
                             <?php endif; ?>
                         </td>
                         <td class="text-center">

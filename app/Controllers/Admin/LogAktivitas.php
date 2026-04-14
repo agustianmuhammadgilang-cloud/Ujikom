@@ -17,10 +17,10 @@ class LogAktivitas extends BaseController
 
         // 2. Gunakan paginate() alih-alih findAll() untuk efisiensi query 
         $data = [
-            'log'         => $model->select('log_aktivitas.*, users.nama')
-                                   ->join('users', 'users.id_user = log_aktivitas.id_user')
-                                   ->orderBy('tanggal', 'DESC')
-                                   ->paginate(10, 'log'), // Menampilkan 10 data per halaman
+            'log' => $model->select('log_aktivitas.*, COALESCE(users.nama, "User dihapus") as nama')
+                    ->join('users', 'users.id_user = log_aktivitas.id_user', 'left')
+                    ->orderBy('tanggal', 'DESC')
+                    ->paginate(10, 'log'),
             'pager'       => $model->pager,
             'currentPage' => $currentPage
         ];

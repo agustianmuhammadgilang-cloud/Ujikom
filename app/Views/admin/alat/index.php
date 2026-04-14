@@ -27,6 +27,7 @@
                         <th class="py-3 text-secondary small fw-semibold">Nama Alat</th>
                         <th class="py-3 text-secondary small fw-semibold">Kategori</th>
                         <th class="py-3 text-secondary small fw-semibold">Stok</th>
+                        <th class="py-3 text-secondary small fw-semibold">Harga Denda</th>
                         <th class="py-3 text-secondary small fw-semibold">Status</th>
                         <th class="py-3 text-secondary small fw-semibold text-center" style="width: 15%">Aksi</th>
                     </tr>
@@ -38,6 +39,7 @@
                         <td class="fw-semibold text-dark"><?= $a['nama_alat'] ?></td>
                         <td><span class="text-muted"><?= $a['nama_kategori'] ?></span></td>
                         <td><?= $a['stok'] ?></td>
+                        <td>Rp <?= number_format($a['harga_denda'], 0, ',', '.') ?></td>
                         <td>
                             <?php if ($a['stok'] > 0) : ?>
                                 <span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle px-3">Tersedia</span>

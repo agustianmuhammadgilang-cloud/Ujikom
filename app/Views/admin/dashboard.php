@@ -56,7 +56,7 @@
     <div class="col-12">
         <div class="card p-4 text-center bg-light border-0">
             <p class="mb-0 text-muted small">
-                [cite_start]Gunakan menu navigasi di atas untuk mengelola data master, memantau log aktivitas, dan laporan. [cite: 30]
+                Gunakan menu navigasi di atas untuk mengelola data master, memantau log aktivitas, dan laporan. Selalu pastikan data alat dan peminjaman terupdate untuk kelancaran operasional.
             </p>
         </div>
     </div>

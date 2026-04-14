@@ -3,29 +3,23 @@
 namespace App\Controllers\Peminjam;
 
 use App\Controllers\BaseController;
-use App\Models\PengembalianModel;
+use App\Models\PeminjamanModel;
+use App\Models\LogAktivitasModel;
 
 class Pengembalian extends BaseController
 {
-    protected $pengembalianModel;
-
-    public function __construct()
-    {
-        $this->pengembalianModel = new PengembalianModel();
-    }
-
     public function index()
     {
         $id_user = session()->get('id_user');
 
-        $data['pengembalian'] = $this->pengembalianModel
-            ->select('pengembalian.*, peminjaman.tanggal_pinjam')
-            ->join('peminjaman', 'peminjaman.id_peminjaman = pengembalian.id_peminjaman')
-            ->where('peminjaman.id_user', $id_user)
+        $peminjamanModel = new PeminjamanModel();
+
+        $data['peminjaman'] = $peminjamanModel
+            ->where('id_user', $id_user)
             ->findAll();
 
         // LOG
-        $logModel = new \App\Models\LogAktivitasModel();
+        $logModel = new LogAktivitasModel();
         $logModel->insert([
             'id_user' => $id_user,
             'aktivitas' => 'Mengakses halaman pengembalian',
@@ -33,5 +27,43 @@ class Pengembalian extends BaseController
         ]);
 
         return view('peminjam/pengembalian/index', $data);
+    }
+
+    // ✅ AJUKAN PENGEMBALIAN (FITUR BARU)
+    public function ajukan($id)
+    {
+        $model = new PeminjamanModel();
+
+        $data = $model->find($id);
+
+        // ❗ validasi
+        if (!$data) {
+            return redirect()->back()->with('error', 'Data tidak ditemukan');
+        }
+
+        // ❗ hanya boleh jika sudah disetujui
+        if ($data['status'] != 'disetujui') {
+            return redirect()->back()->with('error', 'Belum bisa mengajukan pengembalian');
+        }
+
+        // ❗ jangan double ajukan
+        if ($data['status_pengembalian'] == 'diajukan') {
+            return redirect()->back()->with('error', 'Sudah diajukan sebelumnya');
+        }
+
+        // update status
+        $model->update($id, [
+            'status_pengembalian' => 'diajukan'
+        ]);
+
+        // LOG
+        $logModel = new LogAktivitasModel();
+        $logModel->insert([
+            'id_user' => session()->get('id_user'),
+            'aktivitas' => 'Mengajukan pengembalian ID ' . $id,
+            'tanggal' => date('Y-m-d H:i:s')
+        ]);
+
+        return redirect()->back()->with('success', 'Pengembalian berhasil diajukan');
     }
 }

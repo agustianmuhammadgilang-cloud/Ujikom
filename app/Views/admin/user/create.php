@@ -36,7 +36,7 @@
                         <label for="password" class="form-label small fw-medium text-secondary">Password Akun</label>
                         <div class="input-group">
                             <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-key"></i></span>
-                            <input type="password" name="password" class="form-control border-start-0 ps-0" id="password" placeholder="Min. 8 karakter" required>
+                            <input type="password" name="password" class="form-control border-start-0 ps-0" id="password" placeholder="Min. 6 karakter" required>
                         </div>
                         <div class="form-text small" style="font-size: 11px;">Gunakan kombinasi huruf dan angka untuk keamanan.</div>
                     </div>
