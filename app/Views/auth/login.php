@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - E-Pinjam</title>
+    <title>Login - Gearmanage</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -26,19 +26,27 @@
             border: 1px solid #dadce0;
             border-radius: 8px;
         }
-        .login-title {
-            font-size: 24px;
-            font-weight: 500;
-            margin-bottom: 8px;
-            color: #202124;
+
+        /* Penyesuaian Space Logo */
+        .logo-wrapper {
             text-align: center;
+            margin-top: 10px;    /* Memberi sedikit ruang dari atas kartu */
+            margin-bottom: 10px;   /* Jarak diperkecil karena subtitle akan mengikuti */
         }
+        .logo-img {
+            width: 180px;        /* Ukuran logo lebih besar agar teks di dalamnya terbaca */
+            height: auto;
+            object-fit: contain;
+        }
+
         .login-subtitle {
-            font-size: 16px;
-            color: #5f6368;
-            margin-bottom: 30px;
+            font-size: 18px;     /* Sedikit lebih besar karena menjadi teks utama */
+            color: #202124;
+            margin-bottom: 35px; /* Jarak ke input form */
             text-align: center;
+            font-weight: 400;
         }
+
         .form-control {
             border: 1px solid #dadce0;
             padding: 10px 15px;
@@ -48,7 +56,6 @@
             border-color: #1a73e8;
             box-shadow: none;
         }
-        /* Style untuk container password dan ikon mata */
         .password-group {
             position: relative;
         }
@@ -82,7 +89,10 @@
 <body>
 
 <div class="login-card">
-    <h2 class="login-title">E-Pinjam</h2>
+    <div class="logo-wrapper">
+        <img src="<?= base_url('assets/img/Logo.png'); ?>" alt="Logo Gearmanage" class="logo-img">
+    </div>
+    
     <p class="login-subtitle">Gunakan Akun Anda</p>
 
     <?php if (session()->getFlashdata('error')) : ?>
@@ -118,11 +128,8 @@
     const password = document.querySelector('#password');
 
     togglePassword.addEventListener('click', function (e) {
-        // Toggle tipe input
         const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
         password.setAttribute('type', type);
-        
-        // Toggle ikon mata
         this.classList.toggle('bi-eye');
         this.classList.toggle('bi-eye-slash');
     });

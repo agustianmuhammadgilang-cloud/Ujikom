@@ -1,75 +1,91 @@
 <?= $this->extend('layout/peminjam_template') ?>
 
 <?= $this->section('content') ?>
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h4 class="fw-bold mb-0 text-dark">Data Peminjaman</h4>
-        <p class="text-muted small mb-0">Daftar semua pengajuan peminjaman alat Anda.</p>
-    </div>
-    <a href="/peminjam/peminjaman/create" class="btn btn-primary shadow-sm px-4">
-        <i class="bi bi-plus-lg me-2"></i> Tambah Peminjaman
-    </a>
+<div class="mb-4">
+    <h4 class="fw-bold mb-0 text-dark">Pilih Alat</h4>
+    <p class="text-muted small">Cari dan pilih alat yang ingin Anda pinjam hari ini.</p>
 </div>
 
-<div class="card shadow-sm border-0">
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="bg-light">
-                    <tr>
-                        <th class="py-3 text-secondary small fw-bold">Waktu Pinjam</th>
-                        <th class="py-3 text-secondary small fw-bold">Rencana Kembali</th>
-                        <th class="py-3 text-secondary small fw-bold text-center">Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($peminjaman)) : ?>
-                        <tr>
-                            <td colspan="4" class="text-center py-5 text-muted">
-                                <i class="bi bi-folder2-open d-block fs-2 mb-2"></i>
-                                Belum ada riwayat peminjaman.
-                            </td>
-                        </tr>
+<div class="mb-4 d-flex justify-content-between align-items-center">
+    <div class="dropdown">
+        <button class="btn btn-white border shadow-sm dropdown-toggle px-4 rounded-pill btn-sm fw-medium" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-filter me-2 text-primary"></i>
+            <?php 
+                $activeKategori = "Semua Kategori";
+                foreach ($kategori as $k) {
+                    if (isset($_GET['kategori']) && $_GET['kategori'] == $k['id_kategori']) {
+                        $activeKategori = $k['nama'];
+                    }
+                }
+                echo $activeKategori;
+            ?>
+        </button>
+        <ul class="dropdown-menu shadow-sm border-0 mt-2">
+            <li>
+                <a class="dropdown-item small py-2 <?= empty($_GET['kategori']) ? 'active bg-primary' : '' ?>" href="/peminjam/peminjaman">
+                    Semua Kategori
+                </a>
+            </li>
+            <li><hr class="dropdown-divider opacity-50"></li>
+            <?php foreach ($kategori as $k) : ?>
+                <li>
+                    <a class="dropdown-item small py-2 <?= (isset($_GET['kategori']) && $_GET['kategori'] == $k['id_kategori']) ? 'active bg-primary' : '' ?>" 
+                       href="?kategori=<?= $k['id_kategori'] ?>">
+                        <?= $k['nama'] ?>
+                    </a>
+                </li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
+
+    <div class="text-muted small">
+        Menampilkan <b><?= count($alat) ?></b> alat
+    </div>
+</div>
+
+<div class="row g-3">
+    <?php if (empty($alat)) : ?>
+        <div class="col-12 text-center py-5">
+            <i class="bi bi-search d-block fs-1 text-muted opacity-50 mb-3"></i>
+            <p class="text-muted">Alat tidak ditemukan untuk kategori ini.</p>
+        </div>
+    <?php endif; ?>
+
+    <?php foreach ($alat as $a) : ?>
+        <div class="col-md-4 col-lg-3">
+            <div class="card h-100 border-0 shadow-sm overflow-hidden">
+                <div class="bg-light d-flex align-items-center justify-content-center" style="height: 160px; overflow: hidden; border-bottom: 1px solid #f1f3f4;">
+                    <?php if ($a['foto']) : ?>
+                        <img src="/uploads/<?= $a['foto'] ?>" class="w-100 h-100" style="object-fit: cover;">
+                    <?php else : ?>
+                        <i class="bi bi-image text-secondary opacity-25 fs-1"></i>
                     <?php endif; ?>
-
-                    <?php foreach ($peminjaman as $p): ?>
-                    <tr>
-                        <td class="text-dark">
-                            <i class="bi bi-calendar-event me-2 text-muted small"></i>
-                            <?= date('d M Y', strtotime($p['tanggal_pinjam'])) ?>
-                        </td>
-                        <td class="text-dark">
-                            <i class="bi bi-calendar-check me-2 text-muted small"></i>
-                            <?= date('d M Y', strtotime($p['tanggal_kembali_rencana'])) ?>
-                        </td>
-                        <td class="text-center">
-                            <?php 
-                            $status = strtolower($p['status']);
-                            if ($status == 'menunggu') : ?>
-                                <span class="badge rounded-pill bg-warning-subtle text-warning border border-warning-subtle px-3 fw-medium">Menunggu</span>
-                            <?php elseif ($status == 'disetujui') : ?>
-                                <span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle px-3 fw-medium">Disetujui</span>
-                            <?php elseif ($status == 'ditolak') : ?>
-                                <span class="badge rounded-pill bg-danger-subtle text-danger border border-danger-subtle px-3 fw-medium">Ditolak</span>
-                            <?php else : ?>
-                                <span class="badge rounded-pill bg-light text-secondary border px-3 fw-medium text-capitalize"><?= $p['status'] ?></span>
-                            <?php endif; ?>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+                </div>
+                
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-start mb-1">
+                        <span class="badge bg-primary-subtle text-primary border-0 small mb-2" style="font-size: 10px;"><?= $a['nama_kategori'] ?></span>
+                        <span class="small text-muted" style="font-size: 11px;">Stok: <b><?= $a['stok'] ?></b></span>
+                    </div>
+                    <h6 class="fw-bold text-dark text-truncate mb-2"><?= $a['nama_alat'] ?></h6>
+                    <p class="text-muted mb-3" style="font-size: 12px;">Denda: Rp<?= number_format($a['harga_denda'], 0, ',', '.') ?>/hari</p>
+                    
+                    <?php if ($a['stok'] > 0) : ?>
+                        <a href="/peminjam/peminjaman/create/<?= $a['id_alat'] ?>" class="btn btn-primary w-100 btn-sm rounded-3">
+                            Pilih Alat <i class="bi bi-arrow-right ms-1"></i>
+                        </a>
+                    <?php else : ?>
+                        <button class="btn btn-secondary w-100 btn-sm rounded-3 disabled">Stok Habis</button>
+                    <?php endif; ?>
+                </div>
+            </div>
         </div>
-    </div>
+    <?php endforeach; ?>
 </div>
 
-<div class="mt-4 row">
-    <div class="col-md-6">
-        <div class="alert bg-light border-0 small text-muted">
-            <i class="bi bi-info-circle me-2"></i> 
-            <strong>Info Status:</strong> 
-            <span class="ms-1">Silakan temui petugas di gudang jika status Anda sudah <b>Disetujui</b> untuk pengambilan alat.</span>
-        </div>
-    </div>
+<div class="position-fixed bottom-0 end-0 m-4">
+    <a href="/peminjam/peminjaman/riwayat" class="btn btn-dark shadow-lg px-4 py-2 rounded-pill">
+        <i class="bi bi-clock-history me-2"></i> Lihat Riwayat Pinjam
+    </a>
 </div>
 <?= $this->endSection() ?>

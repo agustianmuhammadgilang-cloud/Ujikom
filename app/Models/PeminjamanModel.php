@@ -11,6 +11,9 @@ class PeminjamanModel extends Model
 
     protected $allowedFields = [
         'id_user',
+        'nama_peminjam_manual',
+        'id_alat',
+        'jumlah_pinjam',
         'tanggal_pinjam',
         'tanggal_kembali_rencana',
         'status',

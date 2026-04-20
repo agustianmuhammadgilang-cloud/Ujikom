@@ -22,30 +22,38 @@
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
                 <thead class="bg-light">
-                    <tr>
-                        <th class="ps-4 py-3 text-secondary small fw-bold" style="width: 5%">No</th>
-                        <th class="py-3 text-secondary small fw-bold">Nama Kategori</th>
-                        <th class="py-3 text-secondary small fw-bold text-center" style="width: 15%">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php $no = 1; foreach ($kategori as $k) : ?>
-                    <tr>
-                        <td class="ps-4 text-muted small"><?= $no++ ?></td>
-                        <td class="fw-semibold text-dark"><?= $k['nama'] ?></td>
-                        <td class="text-center">
-                            <div class="btn-group">
-                                <a href="/admin/kategori/edit/<?= $k['id_kategori'] ?>" class="btn btn-sm btn-outline-primary border-0" title="Edit">
-                                    <i class="bi bi-pencil-square"></i>
-                                </a>
-                                <a href="/admin/kategori/delete/<?= $k['id_kategori'] ?>" class="btn btn-sm btn-outline-danger border-0" onclick="return confirm('Menghapus kategori akan berdampak pada data alat. Yakin?')" title="Hapus">
-                                    <i class="bi bi-trash"></i>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                </tbody>
+                <tr>
+                    <th class="ps-4 py-3 text-secondary small fw-bold" style="width: 5%">No</th>
+                    <th class="py-3 text-secondary small fw-bold">Nama Kategori</th>
+                    <th class="py-3 text-secondary small fw-bold text-center">Jumlah Alat</th> <th class="py-3 text-secondary small fw-bold text-center" style="width: 15%">Aksi</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <?php $no = 1; foreach ($kategori as $k) : ?>
+                <tr>
+                    <td class="ps-4 text-muted small"><?= $no++ ?></td>
+                    <td class="fw-semibold text-dark"><?= $k['nama'] ?></td>
+                    
+                    <td class="text-center">
+                        <span class="badge rounded-pill bg-info-subtle text-info border border-info-subtle px-3">
+                            <?= $k['total_alat'] ?> Alat
+                        </span>
+                    </td>
+
+                    <td class="text-center">
+                        <div class="btn-group">
+                            <a href="/admin/kategori/edit/<?= $k['id_kategori'] ?>" class="btn btn-sm btn-outline-primary border-0" title="Edit">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                            <a href="/admin/kategori/delete/<?= $k['id_kategori'] ?>" class="btn btn-sm btn-outline-danger border-0" onclick="return confirm('Menghapus kategori akan berdampak pada data alat. Yakin?')" title="Hapus">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
             </table>
         </div>
     </div>

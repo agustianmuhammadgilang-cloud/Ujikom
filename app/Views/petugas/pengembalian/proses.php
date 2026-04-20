@@ -59,15 +59,28 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach($detail as $d): ?>
-                            <tr>
-                                <td class="ps-4 fw-medium text-dark"><?= $d['nama_alat'] ?></td>
-                                <td class="text-center">
-                                    <span class="badge bg-primary bg-opacity-10 text-primary px-3"><?= $d['jumlah'] ?> Unit</span>
-                                </td>
-                            </tr>
-                            <?php endforeach; ?>
-                        </tbody>
+                        <?php foreach($detail as $d): ?>
+                        <tr>
+                            <td class="ps-4 py-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="rounded-3 bg-light d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px; overflow: hidden; border: 1px solid #eee;">
+                                        <?php if (!empty($d['foto'])) : ?>
+                                            <img src="/uploads/<?= $d['foto'] ?>" class="w-100 h-100" style="object-fit: cover;">
+                                        <?php else : ?>
+                                            <i class="bi bi-box text-secondary opacity-50"></i>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-dark mb-0"><?= $d['nama_alat'] ?></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-bold"><?= $d['jumlah'] ?> Unit</span>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
                     </table>
                 </div>
             </div>

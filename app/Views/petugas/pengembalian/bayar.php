@@ -21,22 +21,49 @@
                         <label class="small text-muted d-block mb-1">Nama Peminjam</label>
                         <p class="fw-bold text-dark mb-3"><?= $peminjaman['nama_peminjam'] ?></p>
 
-                        <label class="small text-muted d-block mb-1">Riwayat Waktu</label>
-                        <div class="small">
-                            <div class="text-dark">Pinjam: <?= date('d M Y', strtotime($peminjaman['tanggal_pinjam'])) ?></div>
-                            <div class="text-danger">Kembali: <?= date('d M Y', strtotime($pengembalian['tanggal_kembali'])) ?></div>
+                        <label class="small text-muted d-block mb-2">Riwayat Waktu & Keterlambatan</label>
+                        <div class="p-3 rounded-3 bg-light border-start border-danger border-4">
+                            <div class="d-flex justify-content-between mb-1">
+                                <small class="text-muted">Batas Kembali:</small>
+                                <small class="fw-medium text-dark"><?= date('d M Y', strtotime($peminjaman['tanggal_kembali_rencana'])) ?></small>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <small class="text-muted">Tanggal Dikembalikan:</small>
+                                <small class="fw-medium text-danger"><?= date('d M Y', strtotime($pengembalian['tanggal_kembali'])) ?></small>
+                            </div>
+                            <hr class="my-2 opacity-25">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <span class="small fw-bold text-dark">Total Telat:</span>
+                                <?php 
+                                    $awal  = strtotime($peminjaman['tanggal_kembali_rencana']);
+                                    $akhir = strtotime($pengembalian['tanggal_kembali']);
+                                    $diff  = ($akhir - $awal) / (60 * 60 * 24);
+                                    $hari  = ($diff > 0) ? floor($diff) : 0;
+                                ?>
+                                <span class="badge bg-danger px-2 shadow-sm"><?= $hari ?> Hari</span>
+                            </div>
                         </div>
                     </div>
                     
                     <div class="col-md-6 ps-md-4">
-                        <label class="small text-muted d-block mb-1">Detail Alat</label>
-                        <ul class="list-unstyled mb-0">
+                        <label class="small text-muted d-block mb-2">Detail Alat yang Dipinjam</label>
+                        <div class="vstack gap-2">
                             <?php foreach($detail as $d): ?>
-                                <li class="small text-dark mb-1">
-                                    <i class="bi bi-dot text-primary"></i> <?= $d['nama_alat'] ?> <span class="text-muted">(<?= $d['jumlah'] ?> Unit)</span>
-                                </li>
+                                <div class="d-flex align-items-center p-2 rounded-3 border-bottom-0 bg-light bg-opacity-50 border">
+                                    <div class="rounded-2 bg-white d-flex align-items-center justify-content-center me-2" style="width: 40px; height: 40px; overflow: hidden;">
+                                        <?php if (!empty($d['foto'])) : ?>
+                                            <img src="/uploads/<?= $d['foto'] ?>" class="w-100 h-100" style="object-fit: cover;">
+                                        <?php else : ?>
+                                            <i class="bi bi-box small text-muted"></i>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="small fw-bold text-dark line-height-1"><?= $d['nama_alat'] ?></div>
+                                        <div class="text-muted" style="font-size: 10px;"><?= $d['jumlah'] ?> Unit Terpinjam</div>
+                                    </div>
+                                </div>
                             <?php endforeach; ?>
-                        </ul>
+                        </div>
                     </div>
                 </div>
 

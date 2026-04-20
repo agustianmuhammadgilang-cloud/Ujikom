@@ -70,7 +70,7 @@
             <p class="text-muted small mb-0">Klik tombol di samping untuk mulai mengajukan permohonan pinjam alat baru.</p>
         </div>
         <div class="mt-3 mt-md-0">
-            <a href="/peminjam/peminjaman/create" class="btn btn-primary px-4 py-2 shadow-sm rounded-pill">
+            <a href="/peminjam/peminjaman/" class="btn btn-primary px-4 py-2 shadow-sm rounded-pill">
                 <i class="bi bi-plus-lg me-2"></i> Buat Pengajuan Baru
             </a>
         </div>

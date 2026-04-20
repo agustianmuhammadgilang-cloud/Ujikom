@@ -60,8 +60,7 @@
                         <thead class="table-light">
                             <tr>
                                 <th class="ps-4 py-3 small fw-bold text-secondary">No</th>
-                                <th class="py-3 small fw-bold text-secondary">Nama Alat</th>
-                                <th class="py-3 small fw-bold text-secondary text-center">Jumlah</th>
+                                <th class="py-3 small fw-bold text-secondary">Alat</th> <th class="py-3 small fw-bold text-secondary text-center">Jumlah</th>
                                 <th class="py-3 small fw-bold text-secondary text-center">Stok</th>
                                 <th class="py-3 small fw-bold text-secondary text-center">Validasi</th>
                             </tr>
@@ -70,17 +69,31 @@
                             <?php $no=1; foreach($detail as $d): ?>
                             <tr>
                                 <td class="ps-4 text-muted small"><?= $no++ ?></td>
-                                <td class="fw-medium text-dark"><?= $d['nama_alat'] ?></td>
-                                <td class="text-center"><?= $d['jumlah'] ?></td>
-                                <td class="text-center text-muted small"><?= $d['stok'] ?></td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="rounded bg-light d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px; overflow: hidden; flex-shrink: 0;">
+                                            <?php if ($d['foto']) : ?>
+                                                <img src="/uploads/<?= $d['foto'] ?>" class="w-100 h-100" style="object-fit: cover;">
+                                            <?php else : ?>
+                                                <i class="bi bi-image text-secondary opacity-50"></i>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div>
+                                            <span class="fw-medium text-dark d-block"><?= $d['nama_alat'] ?></span>
+                                            <span class="text-muted small"><?= $d['nama_kategori'] ?? 'Kategori' ?></span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-center fw-bold"><?= $d['jumlah'] ?></td>
+                                <td class="text-center text-muted small"><?= $d['stok'] ?> Unit</td>
                                 <td class="text-center text-nowrap">
                                     <?php if ($d['stok'] >= $d['jumlah']): ?>
-                                        <span class="text-success small fw-medium">
-                                            <i class="bi bi-check-lg"></i> Tersedia
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2 fw-medium">
+                                            <i class="bi bi-check2"></i> Aman
                                         </span>
                                     <?php else: ?>
-                                        <span class="text-danger small fw-medium">
-                                            <i class="bi bi-x-lg"></i> Stok Kurang
+                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 fw-medium">
+                                            <i class="bi bi-exclamation-triangle"></i> Kurang
                                         </span>
                                     <?php endif; ?>
                                 </td>

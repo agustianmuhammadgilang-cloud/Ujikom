@@ -11,6 +11,7 @@ class PengembalianModel extends Model
 
     protected $allowedFields = [
         'id_peminjaman',
+        'nama_peminjam_manual',
         'tanggal_kembali',
         'denda',
         'jumlah_bayar',
