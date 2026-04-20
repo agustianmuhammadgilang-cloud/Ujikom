@@ -17,7 +17,12 @@ class Kategori extends BaseController
     // Tampilkan data
     public function index()
     {
-        $data['kategori'] = $this->kategoriModel->findAll();
+        // Query untuk mengambil kategori beserta jumlah alatnya
+        $data['kategori'] = $this->kategoriModel
+            ->select('kategori.*, COUNT(alat.id_alat) as total_alat')
+            ->join('alat', 'alat.id_kategori = kategori.id_kategori', 'left')
+            ->groupBy('kategori.id_kategori')
+            ->findAll();
 
         // LOG
         $logModel = new \App\Models\LogAktivitasModel();

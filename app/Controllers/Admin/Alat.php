@@ -55,11 +55,21 @@ class Alat extends BaseController
     // SIMPAN
     public function store()
     {
+        $file = $this->request->getFile('foto');
+
+        if ($file && $file->isValid() && !$file->hasMoved()) {
+            $namaFile = $file->getRandomName();
+            $file->move('uploads', $namaFile);
+        } else {
+            $namaFile = null;
+        }
+
         $this->alatModel->save([
             'nama_alat'   => $this->request->getPost('nama_alat'),
             'id_kategori' => $this->request->getPost('id_kategori'),
             'stok'        => $this->request->getPost('stok'),
-            'harga_denda' => $this->request->getPost('harga_denda')
+            'harga_denda' => $this->request->getPost('harga_denda'),
+            'foto'        => $namaFile
         ]);
 
         // LOG
@@ -94,11 +104,30 @@ class Alat extends BaseController
     // UPDATE
     public function update($id)
     {
+        $file = $this->request->getFile('foto');
+        
+        // UBAH DISINI: Sesuaikan dengan 'name' di form View (fotoLama)
+        $fotoLama = $this->request->getPost('fotoLama'); 
+
+        if ($file && $file->isValid() && !$file->hasMoved()) {
+            $namaFile = $file->getRandomName();
+            $file->move('uploads', $namaFile);
+
+            // hapus foto lama jika ada file baru yang diupload
+            if ($fotoLama && $fotoLama != 'default.png' && file_exists('uploads/' . $fotoLama)) {
+                unlink('uploads/' . $fotoLama);
+            }
+        } else {
+            // Jika tidak ada foto baru, gunakan foto lama
+            $namaFile = $fotoLama;
+        }
+
         $this->alatModel->update($id, [
             'nama_alat'   => $this->request->getPost('nama_alat'),
             'id_kategori' => $this->request->getPost('id_kategori'),
             'stok'        => $this->request->getPost('stok'),
             'harga_denda' => $this->request->getPost('harga_denda'),
+            'foto'        => $namaFile
         ]);
 
         // LOG
@@ -115,6 +144,12 @@ class Alat extends BaseController
     // DELETE
     public function delete($id)
     {
+        $alat = $this->alatModel->find($id);
+
+        if ($alat['foto'] && file_exists('uploads/' . $alat['foto'])) {
+            unlink('uploads/' . $alat['foto']);
+        }
+
         $this->alatModel->delete($id);
 
         // LOG

@@ -46,8 +46,9 @@ class Pengembalian extends BaseController
             ->where('peminjaman.id_peminjaman', $id)
             ->first();
 
+        // REVISI: Tambahkan alat.foto dan alat.id_alat
         $detail = $detailModel
-            ->select('detail_peminjaman.*, alat.nama_alat')
+            ->select('detail_peminjaman.*, alat.nama_alat, alat.foto, alat.id_alat')
             ->join('alat', 'alat.id_alat = detail_peminjaman.id_alat')
             ->where('id_peminjaman', $id)
             ->findAll();
@@ -57,14 +58,13 @@ class Pengembalian extends BaseController
             'detail' => $detail
         ];
 
-        // LOG
+        // LOG (Tetap sama)
         $logModel = new LogAktivitasModel();
         $logModel->insert([
             'id_user' => session()->get('id_user'),
             'aktivitas' => 'Mengakses proses pengembalian ID ' . $id,
             'tanggal' => date('Y-m-d H:i:s')
         ]);
-
 
         return view('petugas/pengembalian/proses', $data);
     }
@@ -168,20 +168,20 @@ class Pengembalian extends BaseController
             ->where('id_peminjaman', $pengembalian['id_peminjaman'])
             ->first();
 
+        // REVISI: Tambahkan alat.foto agar di halaman bayar denda muncul gambarnya
         $detail = $detailModel
-            ->select('detail_peminjaman.*, alat.nama_alat, alat.harga_denda')
+            ->select('detail_peminjaman.*, alat.nama_alat, alat.harga_denda, alat.foto')
             ->join('alat', 'alat.id_alat = detail_peminjaman.id_alat')
             ->where('id_peminjaman', $pengembalian['id_peminjaman'])
             ->findAll();
 
-        // LOG
+        // LOG (Tetap sama)
         $logModel = new LogAktivitasModel();
         $logModel->insert([
             'id_user' => session()->get('id_user'),
             'aktivitas' => 'Mengakses halaman pembayaran pengembalian ID ' . $id,
             'tanggal' => date('Y-m-d H:i:s')
         ]);
-
 
         return view('petugas/pengembalian/bayar', [
             'pengembalian' => $pengembalian,

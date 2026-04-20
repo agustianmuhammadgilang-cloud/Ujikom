@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - E-Pinjam</title>
+    <title>Admin Panel</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -55,7 +55,6 @@
         </div>
         <div class="d-none d-sm-block">
             <span class="d-block lh-1 text-uppercase small text-muted">Akses Utama</span>
-            <span class="d-block lh-1 fs-5 fw-bold">E-PINJAM</span>
         </div>
     </a>
 
@@ -71,6 +70,7 @@
                 <li class="nav-item"><a class="nav-link <?= url_is('admin/kategori*') ? 'active' : '' ?>" href="/admin/kategori">Kategori</a></li>
                 <li class="nav-item"><a class="nav-link <?= url_is('admin/peminjaman*') ? 'active' : '' ?>" href="/admin/peminjaman">Peminjaman</a></li>
                 <li class="nav-item"><a class="nav-link <?= url_is('admin/pengembalian*') ? 'active' : '' ?>" href="/admin/pengembalian">Pengembalian</a></li>
+                <li class="nav-item"><a class="nav-link <?= url_is('admin/monitoring*') ? 'active' : '' ?>" href="/admin/monitoring">Monitoring</a></li>
                 <li class="nav-item"><a class="nav-link <?= url_is('admin/logaktivitas*') ? 'active' : '' ?>" href="/admin/logaktivitas">Log</a></li>
             </ul>
             <div class="d-flex align-items-center">

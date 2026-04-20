@@ -24,6 +24,7 @@
                 <thead class="bg-light">
                     <tr>
                         <th class="ps-4 py-3 text-secondary small fw-semibold" style="width: 5%">No</th>
+                        <th class="py-3 text-secondary small fw-semibold">Foto</th>
                         <th class="py-3 text-secondary small fw-semibold">Nama Alat</th>
                         <th class="py-3 text-secondary small fw-semibold">Kategori</th>
                         <th class="py-3 text-secondary small fw-semibold">Stok</th>
@@ -36,6 +37,15 @@
                     <?php $no = 1; foreach ($alat as $a) : ?>
                     <tr>
                         <td class="ps-4 fw-medium"><?= $no++ ?></td>
+                        <td class="py-3">
+                            <div class="d-flex align-items-center justify-content-center bg-light rounded" style="width: 48px; height: 48px; overflow: hidden; border: 1px solid #e0e0e0;">
+                                <?php if ($a['foto']) : ?>
+                                    <img src="/uploads/<?= $a['foto'] ?>" alt="<?= $a['nama_alat'] ?>" style="width: 100%; height: 100%; object-fit: cover;">
+                                <?php else : ?>
+                                    <i class="bi bi-image text-secondary opacity-50" style="font-size: 1.2rem;"></i>
+                                <?php endif; ?>
+                            </div>
+                        </td>
                         <td class="fw-semibold text-dark"><?= $a['nama_alat'] ?></td>
                         <td><span class="text-muted"><?= $a['nama_kategori'] ?></span></td>
                         <td><?= $a['stok'] ?></td>

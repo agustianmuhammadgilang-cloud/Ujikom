@@ -13,7 +13,8 @@ class AlatModel extends Model
         'nama_alat',
         'id_kategori',
         'stok',
-        'harga_denda'
+        'harga_denda',
+        'foto'
     ];
 
     // join kategori

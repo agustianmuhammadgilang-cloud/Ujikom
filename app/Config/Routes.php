@@ -37,9 +37,33 @@ $routes->group('admin', function($routes) {
     $routes->post('kategori/update/(:num)', 'Admin\Kategori::update/$1');
     $routes->get('kategori/delete/(:num)', 'Admin\Kategori::delete/$1');
 
-    // peminjaman & pengembalian
+    // Peminjaman Manual (Admin)
     $routes->get('peminjaman', 'Admin\Peminjaman::index');
+    $routes->get('peminjaman/create', 'Admin\Peminjaman::create');
+    $routes->post('peminjaman/store', 'Admin\Peminjaman::store');
+    $routes->get('peminjaman/edit/(:num)', 'Admin\Peminjaman::edit/$1');
+    $routes->post('peminjaman/update/(:num)', 'Admin\Peminjaman::update/$1');
+    $routes->get('peminjaman/delete/(:num)', 'Admin\Peminjaman::delete/$1');
+
+    // Pengembalian Manual (Admin)
     $routes->get('pengembalian', 'Admin\Pengembalian::index');
+    $routes->get('pengembalian/create', 'Admin\Pengembalian::create'); // Untuk cari nama
+    $routes->post('pengembalian/store', 'Admin\Pengembalian::store');   // Proses pengembalian & hitung denda
+    $routes->get('pengembalian/bayar/(:num)', 'Admin\Pengembalian::bayar/$1');
+    $routes->post('pengembalian/proses-bayar/(:num)', 'Admin\Pengembalian::prosesBayar/$1');
+    $routes->get('pengembalian/delete/(:num)', 'Admin\Pengembalian::delete/$1');
+
+    // Edit Pengembalian Manual
+    $routes->get('pengembalian/edit/(:num)', 'Admin\Pengembalian::edit/$1');
+    $routes->post('pengembalian/update/(:num)', 'Admin\Pengembalian::update/$1');
+
+    // monitoring
+    $routes->get('monitoring', 'Admin\Monitoring::index');
+    // monitoring PDF
+    $routes->get('monitoring/pdf', 'Admin\Monitoring::pdf');
+    // monitoring Excel
+    $routes->get('monitoring/excel', 'Admin\Monitoring::excel');
+
     // log aktivitas
     $routes->get('logaktivitas', 'Admin\LogAktivitas::index');
 });
@@ -66,18 +90,30 @@ $routes->group('petugas', function($routes) {
     $routes->post('pengembalian/proses-bayar/(:num)', 'Petugas\Pengembalian::prosesBayar/$1');
     // laporan
     $routes->get('laporan', 'Petugas\Laporan::index');
+    // laporan
+    $routes->get('laporan', 'Petugas\Laporan::index');
+    $routes->get('laporan/pdf', 'Petugas\Laporan::pdf');  
+    $routes->get('laporan/excel', 'Petugas\Laporan::excel'); 
 });
+
 
 // group peminjam
 $routes->group('peminjam', function($routes) {
     // dashboard
     $routes->get('dashboard', 'Peminjam\Dashboard::index');
+    
     // peminjaman
     $routes->get('peminjaman', 'Peminjam\Peminjaman::index');
-    $routes->get('peminjaman/create', 'Peminjam\Peminjaman::create');
+    
+    // Ini route baru untuk riwayat (pastikan diletakkan DI ATAS yang ada (:num))
+    $routes->get('peminjaman/riwayat', 'Peminjam\Peminjaman::riwayat');
+    
+    // Ini route baru untuk create dengan ID alat
+    $routes->get('peminjaman/create/(:num)', 'Peminjam\Peminjaman::create/$1');
+    
     $routes->post('peminjaman/store', 'Peminjam\Peminjaman::store');
+    
     // pengembalian
     $routes->get('pengembalian', 'Peminjam\Pengembalian::index');
-    // ajukan pengembalian
     $routes->get('pengembalian/ajukan/(:num)', 'Peminjam\Pengembalian::ajukan/$1');
 });
