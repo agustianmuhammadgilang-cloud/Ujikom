@@ -175,7 +175,7 @@ class Pengembalian extends BaseController
             ->where('id_peminjaman', $pengembalian['id_peminjaman'])
             ->findAll();
 
-        // LOG (Tetap sama)
+        // LOG 
         $logModel = new LogAktivitasModel();
         $logModel->insert([
             'id_user' => session()->get('id_user'),
@@ -213,14 +213,6 @@ class Pengembalian extends BaseController
         $log->insert([
             'id_user' => session()->get('id_user'),
             'aktivitas' => 'Membayar denda pengembalian ID ' . $id,
-            'tanggal' => date('Y-m-d H:i:s')
-        ]);
-
-        // LOG
-        $logModel = new LogAktivitasModel();
-        $logModel->insert([
-            'id_user' => session()->get('id_user'),
-            'aktivitas' => 'Menyelesaikan pembayaran denda pengembalian ID ' . $id,
             'tanggal' => date('Y-m-d H:i:s')
         ]);
 

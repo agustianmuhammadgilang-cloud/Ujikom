@@ -4,16 +4,16 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h4 class="fw-bold mb-0 text-dark">Riwayat Peminjaman</h4>
-        <p class="text-muted small mb-0">Daftar semua pengajuan peminjaman alat Anda.</p>
+        <p class="text-muted small mb-0">Daftar semua pengajuan peminjaman alat Anda secara detail.</p>
     </div>
     <a href="/peminjam/peminjaman" class="btn btn-primary shadow-sm px-4">
-        <i class="bi bi-plus-lg me-2"></i> Pinjam Alat Baru
+        Tambah Pinjaman Baru
     </a>
 </div>
 
 <?php if (session()->getFlashdata('success')) : ?>
     <div class="alert alert-success py-2 small shadow-sm" role="alert">
-        <i class="bi bi-check-circle me-2"></i> <?= session()->getFlashdata('success'); ?>
+        <?= session()->getFlashdata('success'); ?>
     </div>
 <?php endif; ?>
 
@@ -23,42 +23,47 @@
             <table class="table table-hover align-middle mb-0">
                 <thead class="bg-light">
                     <tr>
-                        <th class="ps-4 py-3 text-secondary small fw-bold">Waktu Pinjam</th>
-                        <th class="py-3 text-secondary small fw-bold">Rencana Kembali</th>
+                        <th class="ps-4 py-3 text-secondary small fw-bold">Alat & Spesifikasi</th>
+                        <th class="py-3 text-secondary small fw-bold text-center">Jumlah</th>
+                        <th class="py-3 text-secondary small fw-bold">Waktu Pinjam</th>
+                        <th class="py-3 text-secondary small fw-bold">Batas Kembali</th>
                         <th class="py-3 text-secondary small fw-bold text-center">Status</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($peminjaman)) : ?>
                         <tr>
-                            <td colspan="3" class="text-center py-5 text-muted">
-                                <i class="bi bi-folder2-open d-block fs-2 mb-2"></i>
-                                Belum ada riwayat peminjaman.
+                            <td colspan="5" class="text-center py-5 text-muted">
+                                Belum ada riwayat peminjaman yang tercatat.
                             </td>
                         </tr>
                     <?php endif; ?>
 
                     <?php foreach ($peminjaman as $p): ?>
                     <tr>
-                        <td class="ps-4 text-dark">
-                            <i class="bi bi-calendar-event me-2 text-muted small"></i>
+                        <td class="ps-4">
+                            <span class="d-block fw-bold text-dark"><?= $p['nama_alat'] ?? 'Alat Tidak Diketahui' ?></span>
+                        </td>
+                        <td class="text-center">
+                            <span class="text-dark fw-medium"><?= $p['jumlah_detail'] ?> Unit</span>
+                        </td>
+                        <td class="text-dark small">
                             <?= date('d M Y', strtotime($p['tanggal_pinjam'])) ?>
                         </td>
-                        <td class="text-dark">
-                            <i class="bi bi-calendar-check me-2 text-muted small"></i>
+                        <td class="text-dark small">
                             <?= date('d M Y', strtotime($p['tanggal_kembali_rencana'])) ?>
                         </td>
                         <td class="text-center">
                             <?php 
                             $status = strtolower($p['status']);
                             if ($status == 'menunggu') : ?>
-                                <span class="badge rounded-pill bg-warning-subtle text-warning border border-warning-subtle px-3 fw-medium">Menunggu</span>
+                                <span class="badge bg-warning text-dark border-0 px-3 fw-medium">Menunggu</span>
                             <?php elseif ($status == 'disetujui') : ?>
-                                <span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle px-3 fw-medium">Disetujui</span>
+                                <span class="badge bg-success text-white border-0 px-3 fw-medium">Disetujui</span>
                             <?php elseif ($status == 'ditolak') : ?>
-                                <span class="badge rounded-pill bg-danger-subtle text-danger border border-danger-subtle px-3 fw-medium">Ditolak</span>
+                                <span class="badge bg-danger text-white border-0 px-3 fw-medium">Ditolak</span>
                             <?php else : ?>
-                                <span class="badge rounded-pill bg-light text-secondary border px-3 fw-medium text-capitalize"><?= $p['status'] ?></span>
+                                <span class="badge bg-secondary text-white border-0 px-3 fw-medium text-capitalize"><?= $p['status'] ?></span>
                             <?php endif; ?>
                         </td>
                     </tr>
@@ -70,10 +75,12 @@
 </div>
 
 <div class="mt-4">
-    <div class="alert bg-light border-0 small text-muted">
-        <i class="bi bi-info-circle me-2"></i> 
-        <strong>Info Pengambilan:</strong> 
-        <span class="ms-1">Jika status <b>Disetujui</b>, silakan ambil alat di gudang dengan menunjukkan halaman riwayat ini.</span>
+    <div class="p-3 bg-light border rounded small text-muted">
+        <strong>Keterangan:</strong> 
+        <ul class="mb-0 mt-1">
+            <li>Pastikan membawa kartu identitas saat pengambilan alat yang telah <strong>Disetujui</strong>.</li>
+            <li>Keterlambatan pengembalian akan dikenakan denda sesuai ketentuan yang berlaku.</li>
+        </ul>
     </div>
 </div>
 <?= $this->endSection() ?>

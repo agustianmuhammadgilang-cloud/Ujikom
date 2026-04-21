@@ -49,7 +49,13 @@ class Peminjaman extends BaseController
             ->where('detail_peminjaman.id_peminjaman', $id) // WAJIB: Gunakan detail_peminjaman.id_peminjaman
             ->findAll();
 
-        // ... sisa kode log (tetap) ...
+        // LOG
+        $logModel = new LogAktivitasModel();
+        $logModel->insert([
+            'id_user' => session()->get('id_user'),
+            'aktivitas' => 'Mengakses detail peminjaman ID ' . $id,
+            'tanggal' => date('Y-m-d H:i:s')
+        ]);
 
         return view('petugas/peminjaman/detail', [
             'peminjaman' => $peminjaman,

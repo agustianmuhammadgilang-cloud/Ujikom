@@ -25,8 +25,7 @@
                     <tr>
                         <th class="ps-4 py-3 text-secondary small fw-bold" style="width: 5%">No</th>
                         <th class="py-3 text-secondary small fw-bold">Nama Peminjam</th>
-                        <th class="py-3 text-secondary small fw-bold">Tgl Pinjam</th>
-                        <th class="py-3 text-secondary small fw-bold">Rencana Kembali</th>
+                        <th class="py-3 text-secondary small fw-bold">Alat & Jumlah</th> <th class="py-3 text-secondary small fw-bold">Tgl Pinjam</th>
                         <th class="py-3 text-secondary small fw-bold text-center">Status</th>
                         <th class="py-3 text-secondary small fw-bold text-center" style="width: 15%">Aksi</th>
                     </tr>
@@ -43,9 +42,18 @@
                         <?php $no = 1; foreach ($peminjaman as $p) : ?>
                         <tr>
                             <td class="ps-4 text-muted small"><?= $no++ ?></td>
-                            <td class="text-dark fw-medium"><?= $p['nama_peminjam_manual'] ?></td>
-                            <td class="text-dark small"><?= date('d M Y', strtotime($p['tanggal_pinjam'])) ?></td>
-                            <td class="text-dark small"><?= date('d M Y', strtotime($p['tanggal_kembali_rencana'])) ?></td>
+                            <td class="text-dark fw-medium">
+                                <?= $p['nama_peminjam_manual'] ?>
+                            </td>
+                            <td>
+                                <span class="text-dark small fw-bold"><?= $p['nama_alat'] ?? '<span class="text-danger">Alat Terhapus</span>' ?></span>
+                                <br>
+                                <small class="text-muted">Jumlah: <?= $p['jumlah_detail'] ?> unit</small>
+                            </td>
+                            <td class="text-dark small">
+                                <span class="d-block"><?= date('d M Y', strtotime($p['tanggal_pinjam'])) ?></span>
+                                <small class="text-muted">s/d <?= date('d M Y', strtotime($p['tanggal_kembali_rencana'])) ?></small>
+                            </td>
                             <td class="text-center">
                                 <?php if ($p['status'] == 'dipinjam') : ?>
                                     <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-3 fw-medium" style="color: #856404 !important;">Dipinjam</span>

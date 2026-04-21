@@ -47,11 +47,11 @@ $routes->group('admin', function($routes) {
 
     // Pengembalian Manual (Admin)
     $routes->get('pengembalian', 'Admin\Pengembalian::index');
-    $routes->get('pengembalian/create', 'Admin\Pengembalian::create'); // Untuk cari nama
-    $routes->post('pengembalian/store', 'Admin\Pengembalian::store');   // Proses pengembalian & hitung denda
+    $routes->get('pengembalian/create', 'Admin\Pengembalian::create'); 
+    $routes->post('pengembalian/store', 'Admin\Pengembalian::store'); 
     $routes->get('pengembalian/bayar/(:num)', 'Admin\Pengembalian::bayar/$1');
     $routes->post('pengembalian/proses-bayar/(:num)', 'Admin\Pengembalian::prosesBayar/$1');
-    $routes->get('pengembalian/delete/(:num)', 'Admin\Pengembalian::delete/$1');
+    $routes->post('pengembalian/delete/(:num)', 'Admin\Pengembalian::delete/$1');
 
     // Edit Pengembalian Manual
     $routes->get('pengembalian/edit/(:num)', 'Admin\Pengembalian::edit/$1');
