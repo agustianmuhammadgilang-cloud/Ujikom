@@ -23,11 +23,15 @@ class Pengembalian extends BaseController
         $this->alatModel = new AlatModel();
     }
 
-    public function index() {
+    public function index() 
+    {
         $data['pengembalian'] = $this->peminjamanModel
-            ->select('peminjaman.*, pengembalian.id_pengembalian, pengembalian.denda, pengembalian.status_denda, pengembalian.tanggal_kembali')
-            // Gunakan INNER JOIN agar hanya data yang sudah dikembalikan yang muncul
+            ->select('peminjaman.*, pengembalian.id_pengembalian, pengembalian.denda, pengembalian.status_denda, pengembalian.tanggal_kembali, alat.nama_alat, detail_peminjaman.jumlah as jumlah_detail')
+            // Join ke pengembalian (Data transaksi selesai)
             ->join('pengembalian', 'pengembalian.id_peminjaman = peminjaman.id_peminjaman') 
+            // Join ke detail dan alat (Untuk menampilkan nama alat & jumlah)
+            ->join('detail_peminjaman', 'detail_peminjaman.id_peminjaman = peminjaman.id_peminjaman', 'left')
+            ->join('alat', 'alat.id_alat = detail_peminjaman.id_alat', 'left')
             ->where('peminjaman.nama_peminjam_manual !=', null)
             ->orderBy('pengembalian.id_pengembalian', 'DESC')
             ->findAll();
@@ -43,19 +47,30 @@ class Pengembalian extends BaseController
         return view('admin/pengembalian/index', $data);
     }
 
-    public function create() {
-    // Ambil semua id_peminjaman yang sudah pernah diproses kembali
+    public function create() 
+    {
     $peminjamanSelesai = $this->pengembalianModel->findColumn('id_peminjaman') ?: [0];
 
     $data['peminjaman_aktif'] = $this->peminjamanModel
-        ->where('nama_peminjam_manual !=', null)
-        ->where('status', 'dipinjam')
-        // Pastikan nama yang sudah dikembalikan tidak muncul lagi
-        ->whereNotIn('id_peminjaman', $peminjamanSelesai) 
+        ->select('peminjaman.*, alat.nama_alat, detail_peminjaman.jumlah as jumlah_detail')
+        ->join('detail_peminjaman', 'detail_peminjaman.id_peminjaman = peminjaman.id_peminjaman', 'left')
+        ->join('alat', 'alat.id_alat = detail_peminjaman.id_alat', 'left')
+        ->where('peminjaman.nama_peminjam_manual !=', null)
+        ->where('peminjaman.status', 'dipinjam')
+        ->whereNotIn('peminjaman.id_peminjaman', $peminjamanSelesai) 
         ->findAll();
 
-        return view('admin/pengembalian/tambah', $data);
-    }
+        // LOG
+        $logModel = new LogAktivitasModel();
+        $logModel->insert([
+            'id_user' => session()->get('id_user'),
+            'aktivitas' => 'Admin mengakses halaman tambah pengembalian',
+            'tanggal' => date('Y-m-d H:i:s')
+        ]);
+
+
+    return view('admin/pengembalian/tambah', $data);
+}
 
     public function store()
     {
@@ -144,6 +159,15 @@ class Pengembalian extends BaseController
             'detail'       => $detail
         ];
 
+        // LOG
+        $logModel = new \App\Models\LogAktivitasModel();
+        $logModel->insert([
+            'id_user' => session()->get('id_user'),
+            'aktivitas' => 'Admin mengakses halaman bayar denda',
+            'tanggal' => date('Y-m-d H:i:s')
+        ]);
+
+
         return view('admin/pengembalian/bayar', $data);
     }
 
@@ -169,6 +193,7 @@ class Pengembalian extends BaseController
             'aktivitas' => 'Admin menerima pembayaran denda ID Pengembalian: ' . $id,
             'tanggal'   => date('Y-m-d H:i:s')
         ]);
+        
 
         return redirect()->to('/admin/pengembalian')->with('success', 'Pembayaran denda berhasil dikonfirmasi. Status: Lunas.');
     }
@@ -176,13 +201,23 @@ class Pengembalian extends BaseController
 public function edit($id)
 {
     $data['pengembalian'] = $this->pengembalianModel
-        ->select('pengembalian.*, peminjaman.nama_peminjam_manual, peminjaman.jumlah_pinjam') 
+        ->select('pengembalian.*, peminjaman.nama_peminjam_manual, detail_peminjaman.jumlah as jumlah_detail, alat.nama_alat') 
         ->join('peminjaman', 'peminjaman.id_peminjaman = pengembalian.id_peminjaman')
+        ->join('detail_peminjaman', 'detail_peminjaman.id_peminjaman = peminjaman.id_peminjaman', 'left')
+        ->join('alat', 'alat.id_alat = detail_peminjaman.id_alat', 'left')
         ->find($id);
 
     if (!$data['pengembalian']) {
         return redirect()->to('/admin/pengembalian')->with('error', 'Data tidak ditemukan.');
     }
+    // LOG
+    $logModel = new LogAktivitasModel();
+    $logModel->insert([
+        'id_user' => session()->get('id_user'),
+        'aktivitas' => 'Admin mengakses halaman edit pengembalian',
+        'tanggal' => date('Y-m-d H:i:s')
+    ]);
+
 
     return view('admin/pengembalian/edit', $data);
 }
@@ -208,6 +243,14 @@ public function update($id)
         'nama_peminjam_manual' => $namaBaru
     ]);
 
+    // Log Aktivitas
+    $logModel = new LogAktivitasModel();
+    $logModel->insert([
+        'id_user'   => session()->get('id_user'),
+        'aktivitas' => 'Admin mengubah nama peminjam di pengembalian ID: ' . $id,
+        'tanggal'   => date('Y-m-d H:i:s')
+    ]);
+
     // 4. Redirect kembali
     session()->setFlashdata('success', 'Nama peminjam berhasil diperbarui di catatan peminjaman.');
     return redirect()->to('/admin/pengembalian');
@@ -215,11 +258,34 @@ public function update($id)
 
 public function delete($id)
 {
-    $model = new \App\Models\PengembalianModel();
+    $pengembalian = $this->pengembalianModel->find($id);
+    
+    if ($pengembalian) {
+        $db = \Config\Database::connect();
+        $db->transStart();
 
-    $model->delete($id);
+        // 1. Ubah status peminjaman kembali ke 'dipinjam' 
+        // Agar bisa diproses kembali nanti
+        $this->peminjamanModel->update($pengembalian['id_peminjaman'], [
+            'status' => 'dipinjam',
+            'status_pengembalian' => 'tidak_diajukan'
+        ]);
 
-    return redirect()->to('/admin/pengembalian')->with('success', 'Data berhasil dihapus');
+        // 2. Hapus data pengembalian (Gunakan true jika ingin permanen)
+        $this->pengembalianModel->delete($id, true);
+
+        // Log
+        $logModel = new LogAktivitasModel();
+        $logModel->insert([
+            'id_user'   => session()->get('id_user'),
+            'aktivitas' => 'Admin menghapus data pengembalian ID: ' . $id,
+            'tanggal'   => date('Y-m-d H:i:s')
+        ]);
+
+
+        $db->transComplete();
+        return redirect()->to('/admin/pengembalian')->with('success', 'Data berhasil dihapus');
+    }
 }
 
 }

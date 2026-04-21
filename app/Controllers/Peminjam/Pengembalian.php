@@ -48,6 +48,15 @@ class Pengembalian extends BaseController
             }
         }
 
+        // Log
+        $logModel = new LogAktivitasModel();
+        $logModel->insert([
+            'id_user' => session()->get('id_user'),
+            'aktivitas' => 'Mengakses halaman pengembalian',
+            'tanggal' => date('Y-m-d H:i:s')
+        ]);
+
+
         $data['peminjaman'] = $peminjaman;
         return view('peminjam/pengembalian/index', $data);
     }
@@ -71,6 +80,14 @@ class Pengembalian extends BaseController
             'aktivitas' => 'Mengajukan pengembalian ID ' . $id,
             'tanggal'   => date('Y-m-d H:i:s')
         ]);
+
+        // Log
+        $logModel->insert([
+            'id_user' => session()->get('id_user'),
+            'aktivitas' => 'Mengajukan pengembalian ID ' . $id,
+            'tanggal' => date('Y-m-d H:i:s')
+        ]);
+
 
         return redirect()->back()->with('success', 'Pengembalian berhasil diajukan!');
     }

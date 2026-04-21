@@ -15,6 +15,15 @@ class Monitoring extends BaseController
     {
         $model = new MonitoringModel();
         $data['monitoring'] = $model->getAllMonitoringData();
+
+        // LOG
+        $logModel = new \App\Models\LogAktivitasModel();
+        $logModel->insert([
+            'id_user' => session()->get('id_user'),
+            'aktivitas' => 'Admin mengakses halaman monitoring',
+            'tanggal' => date('Y-m-d H:i:s')
+        ]);
+
         return view('admin/monitoring/index', $data);
     }
 
@@ -38,6 +47,15 @@ class Monitoring extends BaseController
         $dompdf->render();
         
         $dompdf->stream("Monitoring_" . date('Ymd') . ".pdf", ["Attachment" => false]);
+
+        // LOG
+        $logModel = new \App\Models\LogAktivitasModel();
+        $logModel->insert([
+            'id_user' => session()->get('id_user'),
+            'aktivitas' => 'Admin mencetak laporan monitoring (PDF)',
+            'tanggal' => date('Y-m-d H:i:s')
+        ]);
+
     }
 
     public function excel()
@@ -141,5 +159,14 @@ class Monitoring extends BaseController
     
     $writer->save('php://output');
     exit;
+
+    // LOG
+    $logModel = new \App\Models\LogAktivitasModel();
+    $logModel->insert([
+        'id_user' => session()->get('id_user'),
+        'aktivitas' => 'Admin mencetak laporan monitoring (Excel)',
+        'tanggal' => date('Y-m-d H:i:s')
+    ]);
+
 }
 }

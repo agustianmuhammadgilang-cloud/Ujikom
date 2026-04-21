@@ -29,9 +29,21 @@ class Peminjaman extends BaseController
     public function index()
     {
         $data['peminjaman'] = $this->peminjamanModel
-            ->where('nama_peminjam_manual !=', null) // Hanya ambil data manual
-            ->orderBy('id_peminjaman', 'DESC')
+            ->select('peminjaman.*, alat.nama_alat, detail_peminjaman.jumlah as jumlah_detail')
+            ->join('detail_peminjaman', 'detail_peminjaman.id_peminjaman = peminjaman.id_peminjaman', 'left')
+            ->join('alat', 'alat.id_alat = detail_peminjaman.id_alat', 'left')
+            ->where('peminjaman.nama_peminjam_manual !=', null)
+            ->orderBy('peminjaman.id_peminjaman', 'DESC')
             ->findAll();
+
+            // LOG
+            $logModel = new LogAktivitasModel();
+            $logModel->insert([
+                'id_user' => session()->get('id_user'),
+                'aktivitas' => 'Admin mengakses halaman peminjaman',
+                'tanggal' => date('Y-m-d H:i:s')
+            ]);
+
 
         return view('admin/peminjaman/index', $data);
     }
@@ -42,6 +54,14 @@ class Peminjaman extends BaseController
             'kategori' => $this->kategoriModel->findAll(),
             'alat'     => $this->alatModel->where('stok >', 0)->findAll()
         ];
+        // LOG
+        $logModel = new LogAktivitasModel();
+        $logModel->insert([
+            'id_user' => session()->get('id_user'),
+            'aktivitas' => 'Admin mengakses halaman tambah peminjaman',
+            'tanggal' => date('Y-m-d H:i:s')
+        ]);
+
         return view('admin/peminjaman/tambah', $data);
     }
 
@@ -52,30 +72,28 @@ class Peminjaman extends BaseController
         
         // 1. Cek stok alat
         $alat = $this->alatModel->find($id_alat);
-        if ($alat['stok'] < $jumlah) {
-            return redirect()->back()->with('error', 'Stok alat tidak mencukupi!');
+        if (!$alat || $alat['stok'] < $jumlah) {
+            return redirect()->back()->with('error', 'Stok alat tidak mencukupi atau alat tidak ditemukan!');
         }
 
         $db = \Config\Database::connect();
         $db->transStart();
 
-        // 2. Simpan ke tabel PEMINJAMAN
+        // 2. Simpan ke tabel PEMINJAMAN (Hanya data header)
         $this->peminjamanModel->insert([
             'id_user'                 => null,
             'nama_peminjam_manual'    => $this->request->getPost('nama_lengkap'),
-            'id_alat'                 => $id_alat, 
-            'jumlah_pinjam'           => $jumlah,  
+            // id_alat dan jumlah_pinjam SUDAH DIHAPUS dari sini
             'tanggal_pinjam'          => $this->request->getPost('tanggal_pinjam'),
             'tanggal_kembali_rencana' => $this->request->getPost('tanggal_kembali'),
             'status'                  => 'dipinjam',
             'status_pengembalian'     => 'tidak_diajukan',
-            // --- TAMBAHKAN BARIS DI BAWAH INI ---
             'disetujui_oleh'          => session()->get('id_user') 
         ]);
 
         $idPeminjaman = $this->peminjamanModel->getInsertID();
 
-        // 3. Simpan ke detail_peminjaman 
+        // 3. Simpan ke detail_peminjaman (Data item tetap di sini)
         $this->detailModel->insert([
             'id_peminjaman' => $idPeminjaman,
             'id_alat'       => $id_alat,
@@ -90,7 +108,7 @@ class Peminjaman extends BaseController
         // 5. Log Aktivitas
         $this->logModel->insert([
             'id_user'   => session()->get('id_user'),
-            'aktivitas' => 'Admin membuat peminjaman manual (Auto-Approved) untuk: ' . $this->request->getPost('nama_lengkap'),
+            'aktivitas' => 'Admin membuat peminjaman manual untuk: ' . $this->request->getPost('nama_lengkap'),
             'tanggal'   => date('Y-m-d H:i:s')
         ]);
 
@@ -117,6 +135,15 @@ class Peminjaman extends BaseController
             'kategori'     => $this->kategoriModel->findAll(),
             'alat'         => $this->alatModel->findAll()
         ];
+
+        // LOG
+        $logModel = new LogAktivitasModel();
+        $logModel->insert([
+            'id_user' => session()->get('id_user'),
+            'aktivitas' => 'Admin mengakses halaman edit peminjaman',
+            'tanggal' => date('Y-m-d H:i:s')
+        ]);
+
 
         return view('admin/peminjaman/edit', $data);
     }
@@ -146,18 +173,37 @@ class Peminjaman extends BaseController
     public function delete($id)
     {
         $peminjaman = $this->peminjamanModel->find($id);
-        $detail     = $this->detailModel->where('id_peminjaman', $id)->first();
+        // Kita cari detailnya dulu untuk tahu alat apa dan berapa jumlahnya
+        $detail = $this->detailModel->where('id_peminjaman', $id)->first();
 
-        if ($peminjaman && $detail) {
-            // Kembalikan stok alat jika statusnya masih dipinjam
-            if ($peminjaman['status'] == 'dipinjam') {
+        if ($peminjaman) {
+            $db = \Config\Database::connect();
+            $db->transStart();
+
+            // Kembalikan stok alat jika statusnya masih dipinjam dan data detail ada
+            if ($peminjaman['status'] == 'dipinjam' && $detail) {
                 $alat = $this->alatModel->find($detail['id_alat']);
-                $this->alatModel->update($detail['id_alat'], [
-                    'stok' => $alat['stok'] + $detail['jumlah']
-                ]);
+                if ($alat) {
+                    $this->alatModel->update($detail['id_alat'], [
+                        'stok' => $alat['stok'] + $detail['jumlah']
+                    ]);
+                }
             }
 
+            // Hapus data di tabel detail dulu (karena ada Foreign Key biasanya)
+            $this->detailModel->where('id_peminjaman', $id)->delete();
+            
+            // Baru hapus data utama
             $this->peminjamanModel->delete($id);
+
+            $db->transComplete();
+            // Log Aktivitas
+            $this->logModel->insert([
+                'id_user'   => session()->get('id_user'),
+                'aktivitas' => 'Admin menghapus peminjaman manual ID: ' . $id,
+                'tanggal'   => date('Y-m-d H:i:s')
+            ]);
+
             return redirect()->to('/admin/peminjaman')->with('success', 'Data berhasil dihapus & stok dikembalikan.');
         }
 
